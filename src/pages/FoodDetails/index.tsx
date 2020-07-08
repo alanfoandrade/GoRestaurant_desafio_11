@@ -64,6 +64,7 @@ interface Food {
 
 const FoodDetails: React.FC = () => {
   const [food, setFood] = useState({} as Food);
+  const [favorites, setFavorites] = useState<Food[]>([]);
   const [extras, setExtras] = useState<Extra[]>([]);
   const [isFavorite, setIsFavorite] = useState(false);
   const [foodQuantity, setFoodQuantity] = useState(1);
@@ -91,8 +92,19 @@ const FoodDetails: React.FC = () => {
       setExtras(extrasFormatted);
     }
 
+    async function loadFavorites(): Promise<void> {
+      const response = await api.get<Food[]>(`/favorites`);
+
+      setFavorites(response.data);
+    }
+
     loadFood();
+    loadFavorites();
   }, [routeParams]);
+
+  useEffect(() => {
+    setIsFavorite(!!favorites.find(favorite => favorite.id === food.id));
+  }, [food, favorites]);
 
   function handleIncrementExtra(id: number): void {
     setExtras(prevState =>
@@ -120,8 +132,31 @@ const FoodDetails: React.FC = () => {
     setFoodQuantity(prevState => (prevState > 1 ? prevState - 1 : 1));
   }
 
-  const toggleFavorite = useCallback(() => {
-    // Toggle if food is favorite or not
+  const toggleFavorite = useCallback(async () => {
+    if (!isFavorite) {
+      const {
+        id,
+        name,
+        description,
+        price,
+        category,
+        image_url,
+        thumbnail_url,
+      } = food;
+
+      await api.post('/favorites', {
+        id,
+        name,
+        description,
+        price,
+        category,
+        image_url,
+        thumbnail_url,
+      });
+    } else {
+      await api.delete(`/favorites/${food.id}`);
+    }
+    setIsFavorite(!isFavorite);
   }, [isFavorite, food]);
 
   const cartTotal = useMemo(() => {

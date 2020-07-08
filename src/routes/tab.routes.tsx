@@ -33,6 +33,7 @@ const TabRoutes: React.FC = () => (
     <Tab.Screen
       name="Orders"
       options={{
+        unmountOnBlur: true,
         tabBarIcon: ({ color }) => (
           <Icon size={25} name="shopping-bag" color={color} />
         ),
@@ -44,6 +45,7 @@ const TabRoutes: React.FC = () => (
     <Tab.Screen
       name="Favorites"
       options={{
+        unmountOnBlur: true,
         tabBarIcon: ({ color }) => (
           <Icon size={25} name="heart" color={color} />
         ),
